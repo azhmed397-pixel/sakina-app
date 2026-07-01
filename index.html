@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0E1B2B">
+<title>سكينة | مواقيت الصلاة والأذكار</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0E1B2B;
+    --bg-deep:#091220;
+    --surface:#16263A;
+    --surface-2:#1C3047;
+    --gold:#D4A656;
+    --gold-soft:#E8C77E;
+    --teal:#3E7C74;
+    --teal-soft:#5BA399;
+    --text:#F2EDE4;
+    --text-muted:#8FA0B3;
+    --line:rgba(242,237,228,0.08);
+    --danger:#C2604F;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{height:100%;}
+  body{
+    background: radial-gradient(120% 90% at 50% -10%, #142A40 0%, var(--bg) 45%, var(--bg-deep) 100%);
+    color:var(--text);
+    font-family:'Tajawal', sans-serif;
+    min-height:100vh;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  #app{
+    max-width:480px;
+    margin:0 auto;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    position:relative;
+    padding-bottom:78px;
+  }
+  /* ---------- Header / Hero ---------- */
+  .hero{
+    padding:22px 20px 18px;
+    position:relative;
+    transition:padding .25s ease;
+  }
+  .hero.compact{ padding:16px 20px 10px; }
+  .hero.compact .lantern-wrap{ flex-direction:row; justify-content:space-between; padding:6px 2px 0; }
+  .hero.compact .arc-container{ width:64px; height:64px; }
+  .hero.compact .arc-center .label{ display:none; }
+  .hero.compact .arc-center .next-name{ font-size:13px; }
+  .hero.compact .arc-center .countdown{ font-size:10px; margin-top:2px; }
+  .hero.compact .loc-pill{ margin-top:0; }
+  .hero-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:18px;
+  }
+  .brand{
+    font-family:'Amiri', serif;
+    font-size:22px;
+    font-weight:700;
+    color:var(--gold-soft);
+    letter-spacing:0.5px;
+  }
+  .hijri-date{
+    font-size:12px;
+    color:var(--text-muted);
+    text-align:left;
+  }
+  .lantern-wrap{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:10px;
+    padding:14px 0 6px;
+  }
+  .arc-container{
+    position:relative;
+    width:200px;
+    height:200px;
+  }
+  .arc-container svg{ width:100%; height:100%; transform:rotate(-90deg); }
+  .arc-bg{ fill:none; stroke:var(--line); stroke-width:8; }
+  .arc-progress{
+    fill:none;
+    stroke:url(#goldGrad);
+    stroke-width:8;
+    stroke-linecap:round;
+    transition:stroke-dashoffset 1s linear;
+    filter:drop-shadow(0 0 6px rgba(212,166,86,0.55));
+  }
+  .arc-center{
+    position:absolute;
+    inset:0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+  }
+  .arc-center .label{ font-size:12px; color:var(--text-muted); margin-bottom:4px;}
+  .arc-center .next-name{ font-family:'Amiri', serif; font-size:26px; color:var(--gold-soft); font-weight:700;}
+  .arc-center .countdown{ font-size:14px; color:var(--text); margin-top:6px; letter-spacing:1px; direction:ltr; }
+
+  .loc-pill{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    font-size:12px;
+    color:var(--text-muted);
+    background:var(--surface);
+    border:1px solid var(--line);
+    padding:6px 14px;
+    border-radius:30px;
+    margin-top:4px;
+  }
+  .loc-pill button{
+    background:none;border:none;color:var(--gold-soft);font-family:inherit;font-size:12px;cursor:pointer;
+  }
+
+  /* ---------- Sections ---------- */
+  .screen{ display:none; padding:6px 18px 18px; animation:fadeIn .25s ease; }
+  .screen.active{ display:block; }
+  @keyframes fadeIn{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+
+  .section-title{
+    font-family:'Amiri', serif;
+    font-size:19px;
+    color:var(--gold-soft);
+    margin:18px 0 10px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .section-title:first-child{ margin-top:4px; }
+
+  /* prayer list */
+  .prayer-list{ display:flex; flex-direction:column; gap:8px; }
+  .prayer-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:13px 16px;
+  }
+  .prayer-row.active-now{
+    border-color:rgba(212,166,86,0.5);
+    background:linear-gradient(90deg, rgba(212,166,86,0.12), var(--surface));
+  }
+  .prayer-row .pname{ display:flex; align-items:center; gap:10px; font-size:15px; font-weight:500;}
+  .prayer-row .ptime{ font-size:16px; color:var(--gold-soft); direction:ltr; font-weight:700; }
+  .pname .dot{ width:7px; height:7px; border-radius:50%; background:var(--teal-soft); }
+  .active-now .dot{ background:var(--gold); box-shadow:0 0 6px var(--gold); }
+
+  .method-card{
+    margin-top:16px;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:14px 16px;
+    font-size:12.5px;
+    color:var(--text-muted);
+    line-height:1.9;
+  }
+  .method-card select{
+    background:var(--surface-2);
+    color:var(--text);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:6px 10px;
+    font-family:inherit;
+    font-size:12.5px;
+  }
+
+  /* ---------- Tasbih ---------- */
+  .tasbih-screen{ display:flex; flex-direction:column; align-items:center; }
+  .dhikr-select{
+    width:100%;
+    background:var(--surface);
+    border:1px solid var(--line);
+    color:var(--text);
+    border-radius:14px;
+    padding:12px 14px;
+    font-family:'Tajawal';
+    font-size:15px;
+    margin:14px 0 22px;
+  }
+  .counter-display{
+    font-size:64px;
+    font-weight:900;
+    color:var(--gold-soft);
+    direction:ltr;
+    margin:6px 0 4px;
+    font-variant-numeric:tabular-nums;
+  }
+  .counter-sub{ font-size:13px; color:var(--text-muted); margin-bottom:26px;}
+  .tap-circle{
+    width:190px;
+    height:190px;
+    border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, var(--surface-2), var(--bg-deep));
+    border:2px solid var(--gold);
+    box-shadow:0 0 0 8px rgba(212,166,86,0.06), 0 8px 30px rgba(0,0,0,0.4);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'Amiri', serif;
+    font-size:22px;
+    color:var(--gold-soft);
+    user-select:none;
+    -webkit-tap-highlight-color:transparent;
+    cursor:pointer;
+    transition:transform .08s ease;
+  }
+  .tap-circle:active{ transform:scale(0.95); }
+  .tasbih-controls{
+    display:flex;
+    gap:14px;
+    margin-top:26px;
+    width:100%;
+  }
+  .tbtn{
+    flex:1;
+    padding:13px;
+    border-radius:12px;
+    border:1px solid var(--line);
+    background:var(--surface);
+    color:var(--text);
+    font-family:'Tajawal';
+    font-size:14px;
+    cursor:pointer;
+  }
+  .tbtn.reset{ color:var(--danger); border-color:rgba(194,96,79,0.4); }
+  .daily-total{
+    margin-top:24px;
+    width:100%;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:14px 16px;
+    display:flex;
+    justify-content:space-between;
+    font-size:13px;
+    color:var(--text-muted);
+  }
+  .daily-total b{ color:var(--gold-soft); font-size:15px; }
+
+  /* ---------- Adhkar ---------- */
+  .adhkar-tabs{
+    display:flex;
+    gap:8px;
+    overflow-x:auto;
+    padding-bottom:4px;
+    margin-bottom:6px;
+  }
+  .adhkar-tabs button{
+    white-space:nowrap;
+    background:var(--surface);
+    border:1px solid var(--line);
+    color:var(--text-muted);
+    padding:8px 16px;
+    border-radius:30px;
+    font-family:'Tajawal';
+    font-size:13px;
+    cursor:pointer;
+  }
+  .adhkar-tabs button.active{
+    background:linear-gradient(90deg, var(--gold), var(--gold-soft));
+    color:#1a1305;
+    border-color:transparent;
+    font-weight:700;
+  }
+  .dhikr-card{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:16px;
+    margin-bottom:12px;
+  }
+  .dhikr-text{
+    font-family:'Amiri', serif;
+    font-size:18px;
+    line-height:2.1;
+    color:var(--text);
+  }
+  .dhikr-meta{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:10px;
+    padding-top:10px;
+    border-top:1px solid var(--line);
+  }
+  .dhikr-count{ font-size:12px; color:var(--teal-soft); }
+  .dhikr-counter-btn{
+    background:var(--surface-2);
+    border:1px solid var(--line);
+    color:var(--gold-soft);
+    width:34px; height:34px;
+    border-radius:50%;
+    font-size:16px;
+    cursor:pointer;
+  }
+  .dhikr-progress{ font-size:13px; color:var(--text-muted); direction:ltr; }
+
+  /* ---------- Qibla ---------- */
+  .qibla-screen{ display:flex; flex-direction:column; align-items:center; text-align:center;}
+  .compass-wrap{ position:relative; width:240px; height:240px; margin:24px 0 18px; }
+  .compass-ring{
+    width:100%; height:100%; border-radius:50%;
+    background:var(--surface);
+    border:1px solid var(--line);
+    position:relative;
+    box-shadow:inset 0 0 30px rgba(0,0,0,0.3);
+  }
+  .compass-ring::before{
+    content:'';
+    position:absolute; inset:14px;
+    border-radius:50%;
+    border:1px dashed rgba(242,237,228,0.12);
+  }
+  .needle{
+    position:absolute;
+    left:50%; top:50%;
+    width:4px; height:90px;
+    background:linear-gradient(to top, var(--teal-soft), var(--gold));
+    transform-origin:bottom center;
+    transform:translate(-50%,-100%) rotate(0deg);
+    border-radius:4px;
+    transition:transform .3s ease-out;
+  }
+  .kaaba-icon{
+    position:absolute; top:8px; left:50%; transform:translateX(-50%);
+    font-size:22px;
+  }
+  .compass-center-dot{
+    position:absolute; left:50%; top:50%; width:10px; height:10px;
+    background:var(--gold-soft); border-radius:50%; transform:translate(-50%,-50%);
+  }
+  .qibla-info{
+    background:var(--surface); border:1px solid var(--line); border-radius:14px;
+    padding:14px 18px; width:100%; font-size:13px; color:var(--text-muted); line-height:1.9;
+  }
+  .qibla-deg{ color:var(--gold-soft); font-weight:700; font-size:16px; direction:ltr; }
+
+  /* ---------- More ---------- */
+  .more-list{ display:flex; flex-direction:column; gap:10px; }
+  .more-item{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:15px 16px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-size:14px;
+  }
+  .more-item .mi-left{ display:flex; align-items:center; gap:12px; }
+  .toggle{
+    width:44px; height:25px; background:var(--surface-2); border-radius:30px;
+    position:relative; cursor:pointer; border:1px solid var(--line);
+  }
+  .toggle.on{ background:var(--teal); }
+  .toggle::after{
+    content:''; position:absolute; width:19px; height:19px; background:var(--text);
+    border-radius:50%; top:2px; right:2px; transition:right .2s ease;
+  }
+  .toggle.on::after{ right:21px; background:var(--gold-soft); }
+
+  /* ---------- Bottom Nav ---------- */
+  nav.bottom-nav{
+    position:fixed;
+    bottom:0; left:50%; transform:translateX(-50%);
+    width:100%; max-width:480px;
+    background:rgba(22,38,58,0.92);
+    backdrop-filter:blur(14px);
+    border-top:1px solid var(--line);
+    display:flex;
+    padding:8px 6px calc(8px + env(safe-area-inset-bottom));
+    z-index:50;
+  }
+  nav.bottom-nav button{
+    flex:1;
+    background:none;
+    border:none;
+    color:var(--text-muted);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:4px;
+    font-family:'Tajawal';
+    font-size:10.5px;
+    padding:6px 0;
+    cursor:pointer;
+  }
+  nav.bottom-nav button svg{ width:21px; height:21px; }
+  nav.bottom-nav button.active{ color:var(--gold-soft); }
+
+  .toast{
+    position:fixed; bottom:90px; left:50%; transform:translateX(-50%);
+    background:var(--surface-2); border:1px solid var(--line);
+    padding:10px 18px; border-radius:30px; font-size:13px;
+    opacity:0; pointer-events:none; transition:opacity .25s ease;
+    z-index:100; white-space:nowrap;
+  }
+  .toast.show{ opacity:1; }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-top">
+      <div class="brand">سكينة</div>
+      <div class="hijri-date" id="hijriDate">—</div>
+    </div>
+    <div class="lantern-wrap">
+      <div class="arc-container">
+        <svg viewBox="0 0 200 200">
+          <defs>
+            <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#3E7C74"/>
+              <stop offset="100%" stop-color="#D4A656"/>
+            </linearGradient>
+          </defs>
+          <circle class="arc-bg" cx="100" cy="100" r="88"/>
+          <circle class="arc-progress" id="arcProgress" cx="100" cy="100" r="88" stroke-dasharray="553" stroke-dashoffset="553"/>
+        </svg>
+        <div class="arc-center">
+          <div class="label">الصلاة القادمة</div>
+          <div class="next-name" id="nextPrayerName">—</div>
+          <div class="countdown" id="countdown">--:--:--</div>
+        </div>
+      </div>
+      <div class="loc-pill" id="locPill">📍 جارٍ تحديد الموقع... <button onclick="initLocation()">تحديث</button></div>
+    </div>
+  </div>
+
+  <!-- SCREEN: PRAYER TIMES -->
+  <div class="screen active" id="screen-prayers">
+    <div class="section-title">🕌 مواقيت اليوم</div>
+    <div class="prayer-list" id="prayerList"></div>
+    <div class="method-card">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <span>طريقة الحساب</span>
+        <select id="methodSelect" onchange="onMethodChange()">
+          <option value="egypt">الهيئة المصرية العامة للمساحة</option>
+          <option value="mwl">رابطة العالم الإسلامي</option>
+          <option value="isna">الجمعية الإسلامية لأمريكا الشمالية</option>
+          <option value="makkah">أم القرى (مكة)</option>
+        </select>
+      </div>
+      <div style="margin-top:10px;">جميع الأوقات تُحسب فلكيًا داخل التطبيق بدون إنترنت، بناءً على موقعك الجغرافي.</div>
+    </div>
+  </div>
+
+  <!-- SCREEN: TASBIH -->
+  <div class="screen" id="screen-tasbih">
+    <div class="tasbih-screen">
+      <select class="dhikr-select" id="dhikrSelect" onchange="switchDhikr()">
+        <option value="سُبْحَانَ اللَّهِ">سبحان الله</option>
+        <option value="الْحَمْدُ لِلَّهِ">الحمد لله</option>
+        <option value="اللَّهُ أَكْبَرُ">الله أكبر</option>
+        <option value="لَا إِلَهَ إِلَّا اللَّهُ">لا إله إلا الله</option>
+        <option value="أَسْتَغْفِرُ اللَّهَ">أستغفر الله</option>
+        <option value="لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ">لا حول ولا قوة إلا بالله</option>
+        <option value="سُبْحَانَ اللَّهِ وَبِحَمْدِهِ">سبحان الله وبحمده</option>
+        <option value="custom">ذِكر مخصص...</option>
+      </select>
+      <div class="counter-display" id="tasbihCount">0</div>
+      <div class="counter-sub" id="tasbihTarget">بدون هدف محدد · اضغط للتغيير</div>
+      <div class="tap-circle" id="tapCircle" onclick="tapTasbih()">اضغط للتسبيح</div>
+      <div class="tasbih-controls">
+        <button class="tbtn" onclick="undoTasbih()">↩ تراجع</button>
+        <button class="tbtn reset" onclick="resetTasbih()">✕ تصفير</button>
+      </div>
+      <div class="daily-total">
+        <span>إجمالي تسبيحك اليوم</span>
+        <b id="dailyTotal">0</b>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN: ADHKAR -->
+  <div class="screen" id="screen-adhkar">
+    <div class="adhkar-tabs" id="adhkarTabs"></div>
+    <div id="adhkarList"></div>
+  </div>
+
+  <!-- SCREEN: QIBLA -->
+  <div class="screen" id="screen-qibla">
+    <div class="qibla-screen">
+      <div class="section-title" style="align-self:flex-start;">🧭 اتجاه القبلة</div>
+      <div class="compass-wrap">
+        <div class="compass-ring">
+          <div class="kaaba-icon">🕋</div>
+          <div class="needle" id="qiblaNeedle"></div>
+          <div class="compass-center-dot"></div>
+        </div>
+      </div>
+      <div class="qibla-info" id="qiblaInfo">
+        فعّل بوصلة الجهاز لمعرفة اتجاه القبلة من مكانك<br><br>
+        <button class="tbtn" style="margin-top:6px;" onclick="enableCompass()">تفعيل البوصلة</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN: MORE -->
+  <div class="screen" id="screen-more">
+    <div class="section-title">⚙️ الإعدادات والمزيد</div>
+    <div class="more-list">
+      <div class="more-item">
+        <div class="mi-left">🔔 تنبيهات مواقيت الصلاة</div>
+        <div class="toggle" id="toggleNotif" onclick="toggleSetting('notif')"></div>
+      </div>
+      <div class="more-item">
+        <div class="mi-left">🌙 إشعار أذكار الصباح والمساء</div>
+        <div class="toggle" id="toggleAdhkarNotif" onclick="toggleSetting('adhkarNotif')"></div>
+      </div>
+      <div class="more-item">
+        <div class="mi-left">📳 اهتزاز عند التسبيح</div>
+        <div class="toggle" id="toggleVibrate" onclick="toggleSetting('vibrate')"></div>
+      </div>
+      <div class="more-item" onclick="resetAllData()" style="cursor:pointer;">
+        <div class="mi-left" style="color:var(--danger);">🗑 إعادة ضبط جميع البيانات</div>
+        <span>›</span>
+      </div>
+      <div class="more-item">
+        <div class="mi-left">ℹ️ الإصدار</div>
+        <span style="color:var(--text-muted);">1.0.0</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav">
+    <button class="active" data-screen="prayers" onclick="showScreen('prayers')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 21h18M5 21V10l7-6 7 6v11M9 21v-6h6v6"/></svg>
+      مواقيت
+    </button>
+    <button data-screen="tasbih" onclick="showScreen('tasbih')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/></svg>
+      تسبيح
+    </button>
+    <button data-screen="adhkar" onclick="showScreen('adhkar')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V4H6.5A2.5 2.5 0 0 0 4 6.5v13Z"/><path d="M4 19.5V6.5"/></svg>
+      أذكار
+    </button>
+    <button data-screen="qibla" onclick="showScreen('qibla')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7l2.5 5.5L9.5 14 12 7Z"/></svg>
+      القبلة
+    </button>
+    <button data-screen="more" onclick="showScreen('more')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>
+      المزيد
+    </button>
+  </nav>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script src="adhkar-data.js"></script>
+<script src="prayer-times.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
